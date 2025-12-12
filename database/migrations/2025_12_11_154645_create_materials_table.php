@@ -14,11 +14,11 @@ return new class extends Migration
     {
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique;
-            $table->string('code')->unique->nullable();
-            $table->enum('unit', ['g', 'ml', 'pcs'])->default('g');
-            $table->decimal('currrent_stock', 12,4)->default(0);
-            $table->decimal('std_cost', 12,4)->default(0);
+            $table->string('name')->unique();
+            $table->string('code')->unique()->nullable();
+            $table->enum('unit', ['g', 'ml', 'pcs', 'l', 'kg'])->default('g');
+            $table->decimal('current_stock', 12,4)->default(0);
+            $table->decimal('std_cost', 12,2)->nullable();
             $table->timestamps();
         });
     }

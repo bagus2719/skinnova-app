@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('bill_of_materials', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->foreignId('material_id')->constrained('materials')->onDelete('restrict');
+            $table->decimal('quantity', 10, 4);
+            $table->string('unit', 10)->nullable();
+            $table->unique(['product_id', 'material_id']);
             $table->timestamps();
         });
     }
