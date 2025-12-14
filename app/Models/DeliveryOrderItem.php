@@ -6,27 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class SalesQuotationItem extends Model
+class DeliveryOrderItem extends Model
 {
     use HasFactory;
     
     protected $fillable = [
-        'sales_quotation_id',
+        'delivery_order_id',
         'product_id',
-        'quantity',
-        'unit_price',
-        'line_total',
+        'sales_order_quantity',
+        'delivered_quantity',
     ];
 
     protected $casts = [
-        'quantity' => 'decimal:2',
-        'unit_price' => 'decimal:2',
-        'line_total' => 'decimal:2',
+        'sales_order_quantity' => 'decimal:4',
+        'delivered_quantity' => 'decimal:4',
     ];
 
-    public function salesQuotation(): BelongsTo
+    public function deliveryOrder(): BelongsTo
     {
-        return $this->belongsTo(SalesQuotation::class);
+        return $this->belongsTo(DeliveryOrder::class);
     }
 
     public function product(): BelongsTo

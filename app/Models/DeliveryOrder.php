@@ -7,33 +7,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class SalesQuotation extends Model
+class DeliveryOrder extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'reference_no',
-        'customer_id',
-        'quotation_date',
-        'valid_until_date',
-        'total_amount',
+        'sales_order_id',
+        'delivery_date',
         'status',
         'notes',
     ];
     
     protected $casts = [
-        'quotation_date' => 'date',
-        'valid_until_date' => 'date',
-        'total_amount' => 'decimal:2',
+        'delivery_date' => 'date',
     ];
 
-    public function customer(): BelongsTo
+    public function salesOrder(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(SalesOrder::class);
     }
     
     public function items(): HasMany
     {
-        return $this->hasMany(SalesQuotationItem::class);
+        return $this->hasMany(DeliveryOrderItem::class);
     }
 }
