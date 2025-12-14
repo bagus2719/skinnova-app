@@ -16,6 +16,8 @@ use Filament\Forms\Set;
 use Filament\Forms\Get;
 use App\Models\Material;
 use Filament\Forms\Components\Actions\DeleteAction;
+use App\Filament\Resources\PurchaseOrderResource\RelationManagers\PurchaseBillsRelationManager;
+
 class PurchaseOrderResource extends Resource
 {
     protected static ?string $model = PurchaseOrder::class;
@@ -136,7 +138,7 @@ class PurchaseOrderResource extends Resource
                                     ->live(),
 
                                 Forms\Components\TextInput::make('line_total')
-                                    ->label('Subtotal Baris')
+                                    ->label('Subtotal Item')
                                     ->prefix('Rp')
                                     ->numeric()
                                     ->readOnly()
@@ -262,7 +264,7 @@ class PurchaseOrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PurchaseBillsRelationManager::class,
         ];
     }
 

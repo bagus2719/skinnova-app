@@ -37,4 +37,10 @@ class SalesInvoice extends Model
     {
         return $this->hasMany(SalesInvoiceItem::class);
     }
+    
+    
+    public function salesPayments(): HasMany
+    {
+        return $this->hasMany(SalesPayment::class);
+    }
 }

@@ -19,6 +19,7 @@ use Filament\Forms\Set;
 use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Number;
+use App\Filament\Resources\SalesInvoiceResource\RelationManagers\SalesPaymentsRelationManager;
 
 class SalesInvoiceResource extends Resource
 {
@@ -128,7 +129,7 @@ class SalesInvoiceResource extends Resource
                                     ->disabled()
                                     ->dehydrated(true)
                                     ->required()
-                                    ->columnSpan(4),
+                                    ->columnSpan(2),
 
                                 Forms\Components\TextInput::make('quantity')
                                     ->label('Qty Ditagih')
@@ -287,7 +288,7 @@ class SalesInvoiceResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            SalesPaymentsRelationManager::class,
         ];
     }
 

@@ -21,6 +21,8 @@ class InventoryAdjustmentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-arrow-path';
     protected static ?string $label = 'Penyesuaian Stok Material';
+    
+    protected static ?string $navigationGroup = 'Manufacturing';    
 
     public static function form(Form $form): Form
     {
