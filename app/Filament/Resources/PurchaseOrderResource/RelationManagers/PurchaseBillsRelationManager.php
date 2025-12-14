@@ -246,6 +246,13 @@ class PurchaseBillsRelationManager extends RelationManager
                             ->send();
                     }),
 
+                Tables\Actions\Action::make('printBill')
+                    ->label('Cetak Tagihan')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('info')
+                    // Memanggil rute yang akan kita daftarkan di web.php
+                    ->url(fn(PurchaseBill $record): string => route('filament.admin.purchase-bills.pdf', $record))
+                    ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

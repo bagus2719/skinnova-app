@@ -23,6 +23,11 @@ class PurchaseBill extends Model
         return $this->belongsTo(Vendor::class);
     }
 
+    public function goodReceipt(): BelongsTo
+    {
+        return $this->belongsTo(GoodReceipt::class);
+    }
+
     public function purchaseOrder(): BelongsTo
     {
         return $this->belongsTo(PurchaseOrder::class);
