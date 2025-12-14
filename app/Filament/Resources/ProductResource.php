@@ -105,8 +105,14 @@ class ProductResource extends Resource
 
                 Tables\Columns\TextColumn::make('current_stock')
                     ->label('Stok Saat Ini')
-                    ->numeric(decimalPlaces: 4)
-                    ->sortable(),
+                    ->numeric(decimalPlaces: 2)
+                    ->sortable()
+                    ->badge()
+                    ->color(fn ($state): string => match (true) {
+                        $state <= 0 => 'danger',
+                        $state > 0 => 'success',
+                        default => 'gray',
+                    }),
 
                 Tables\Columns\TextColumn::make('selling_price')
                     ->label('Harga Jual')

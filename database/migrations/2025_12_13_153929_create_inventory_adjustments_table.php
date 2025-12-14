@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bill_of_materials', function (Blueprint $table) {
+        Schema::create('inventory_adjustments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->string('reference_no')->unique();
             $table->foreignId('material_id')->constrained('materials')->onDelete('restrict');
-            $table->decimal('quantity', 10, 2);
-            $table->string('unit', 10)->nullable();
-            $table->unique(['product_id', 'material_id']);
+            $table->enum('type', ['IN', 'OUT']);
+            $table->decimal('quantity', 12, 2);
+            $table->text('reason')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bill_of_materials');
+        Schema::dropIfExists('inventory_adjustments');
     }
 };

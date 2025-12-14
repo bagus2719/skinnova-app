@@ -72,7 +72,7 @@ class MaterialResource extends Resource
                             ->numeric()
                             ->step(0.01)
                             ->default(0)
-                            ->required(),
+                            ->disabled(),
 
                         Forms\Components\TextInput::make('std_cost')
                             ->label('Biaya Standar per Unit (Rp)')
@@ -103,8 +103,14 @@ class MaterialResource extends Resource
 
                 Tables\Columns\TextColumn::make('current_stock')
                     ->label('Stok Saat Ini')
-                    ->numeric(decimalPlaces: 4)
-                    ->sortable(),
+                    ->numeric(decimalPlaces: 2)
+                    ->sortable()
+                    ->badge()
+                    ->color(fn($state): string => match (true) {
+                        $state <= 0 => 'danger',
+                        $state > 0 => 'success',
+                        default => 'gray',
+                    }),
 
                 Tables\Columns\TextColumn::make('std_cost')
                     ->label('Biaya Standar')
