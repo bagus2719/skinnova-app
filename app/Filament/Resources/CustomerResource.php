@@ -26,12 +26,22 @@ class CustomerResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Informasi Customer')
                     ->schema([
+                        Forms\Components\FileUpload::make('profile_image')
+                            ->label('Foto Profil')
+                            ->image()
+                            ->directory('customer-photos')
+                            ->visibility('public')
+                            ->imageResizeTargetWidth('200')
+                            ->imageResizeTargetHeight('200')
+                            ->imageCropAspectRatio('1:1')
+                            ->columnSpan(1),
+
                         Forms\Components\TextInput::make('name')
                             ->label('Nama Customer')
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
-                            
+
                         Forms\Components\TextInput::make('code')
                             ->label('Kode Customer')
                             ->required()
@@ -47,12 +57,12 @@ class CustomerResource extends Resource
                             ->readOnly()
                             ->dehydrated(true)
                             ->maxLength(255),
-                        
+
                         Forms\Components\TextInput::make('contact_person')
                             ->label('Kontak Person')
                             ->maxLength(255)
                             ->nullable(),
-                            
+
                         Forms\Components\TextInput::make('phone')
                             ->label('Nomor Telepon')
                             ->tel()
@@ -69,7 +79,7 @@ class CustomerResource extends Resource
                             ->label('Alamat')
                             ->columnSpanFull()
                             ->nullable(),
-                            
+
                         Forms\Components\Toggle::make('is_active')
                             ->label('Status Aktif')
                             ->default(true)
@@ -82,11 +92,14 @@ class CustomerResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('profile_image')
+                    ->label('Foto'),
+
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Customer')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('code')
                     ->label('Kode')
                     ->searchable()
@@ -100,7 +113,7 @@ class CustomerResource extends Resource
                 Tables\Columns\TextColumn::make('phone')
                     ->label('Telepon')
                     ->searchable(),
-                    
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Aktif')
                     ->boolean(),

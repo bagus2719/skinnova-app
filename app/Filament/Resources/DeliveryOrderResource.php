@@ -197,6 +197,12 @@ class DeliveryOrderResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('printDeliveryOrder')
+                    ->label('Cetak Surat Jalan')
+                    ->icon('heroicon-o-truck')
+                    ->color('info')
+                    ->url(fn (DeliveryOrder $record): string => route('filament.admin.delivery-orders.pdf', $record))
+                    ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('completeDelivery')
                     ->label('Complete Delivery')
@@ -218,7 +224,9 @@ class DeliveryOrderResource extends Resource
                             foreach ($record->items as $doItem) {
                                 $deliveredQty = $doItem->delivered_quantity;
                                 $product = $doItem->product;
-                                
+                                if ($product) {
+                                    $product->decrement('current_stock', $deliveredQty);
+                                }
                                 $soItem = $so->items->where('product_id', $product->id)->first();
                                 if ($soItem) {
                                     $soItem->shipped_quantity += $deliveredQty;

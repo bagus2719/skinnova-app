@@ -38,7 +38,18 @@ class SalesPaymentsRelationManager extends RelationManager
                             ->numeric()
                             ->required()
                             ->minValue(1)
-                            ->suffix('IDR'),
+                            ->suffix('IDR')
+                            ->default(function (RelationManager $livewire): float {
+                                $invoice = $livewire->getOwnerRecord();
+                                
+                                // Hitung total yang sudah dibayar
+                                $totalPaid = $invoice->salesPayments()->sum('amount');
+                                
+                                // Hitung sisa tagihan
+                                $remaining = $invoice->grand_total - $totalPaid;
+                                
+                                return max(0.00, $remaining);
+                            }),
 
                         Forms\Components\Select::make('payment_method')
                             ->options([

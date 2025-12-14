@@ -21,6 +21,7 @@ class Employee extends Model
         'phone',
         'email',
         'status',
+        'profile_image',
     ];
 
     protected $casts = [

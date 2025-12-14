@@ -18,6 +18,7 @@ class Customer extends Model
         'email',
         'address',
         'is_active',
+        'profile_image',
     ];
 
     protected $casts = [

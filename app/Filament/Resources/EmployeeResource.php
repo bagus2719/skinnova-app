@@ -30,9 +30,18 @@ class EmployeeResource extends Resource
             ->schema([
                 Forms\Components\Tabs::make('Employee Data')
                     ->tabs([
-                        // TAB 1: Informasi Dasar & Pribadi
                         Forms\Components\Tabs\Tab::make('Informasi Dasar')
                             ->schema([
+                                Forms\Components\FileUpload::make('profile_image')
+                                    ->label('Foto Profil')
+                                    ->image()
+                                    ->directory('employee-photos')
+                                    ->visibility('public')
+                                    ->imageResizeTargetWidth('200')
+                                    ->imageResizeTargetHeight('200')
+                                    ->imageCropAspectRatio('1:1')
+                                    ->columnSpan(1),
+
                                 Forms\Components\TextInput::make('employee_id')
                                     ->label('ID Karyawan')
                                     ->required()
@@ -49,19 +58,19 @@ class EmployeeResource extends Resource
                                     ->readOnly()
                                     ->dehydrated(true)
                                     ->columnSpan(1),
-                                
+
                                 Forms\Components\TextInput::make('first_name')
                                     ->label('Nama Depan')
                                     ->required()
                                     ->maxLength(255)
                                     ->columnSpan(1),
-                                    
+
                                 Forms\Components\TextInput::make('last_name')
                                     ->label('Nama Belakang')
                                     ->maxLength(255)
                                     ->nullable()
                                     ->columnSpan(1),
-                                    
+
                                 Forms\Components\Select::make('gender')
                                     ->label('Jenis Kelamin')
                                     ->options([
@@ -69,7 +78,7 @@ class EmployeeResource extends Resource
                                         'Perempuan' => 'Perempuan',
                                     ])
                                     ->nullable(),
-                                    
+
                                 Forms\Components\DatePicker::make('date_of_birth')
                                     ->label('Tanggal Lahir')
                                     ->nullable(),
@@ -80,7 +89,7 @@ class EmployeeResource extends Resource
                                     ->tel()
                                     ->maxLength(255)
                                     ->nullable(),
-                                    
+
                                 Forms\Components\TextInput::make('email')
                                     ->label('Email Kantor')
                                     ->email()
@@ -95,7 +104,7 @@ class EmployeeResource extends Resource
                             ->schema([
                                 Forms\Components\Select::make('job_position_id')
                                     ->label('Jabatan / Posisi')
-                                    ->relationship('jobPosition', 'name', fn (Builder $query) => $query->orderBy('name'))
+                                    ->relationship('jobPosition', 'name', fn(Builder $query) => $query->orderBy('name'))
                                     ->searchable()
                                     ->preload()
                                     ->nullable()
@@ -120,7 +129,7 @@ class EmployeeResource extends Resource
                                 Forms\Components\DatePicker::make('hire_date')
                                     ->label('Tanggal Mulai Kerja')
                                     ->nullable(),
-                                
+
                                 Forms\Components\Select::make('status')
                                     ->label('Status Karyawan')
                                     ->options([
@@ -139,37 +148,40 @@ class EmployeeResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('profile_image')
+                    ->label('Foto'),
+
                 Tables\Columns\TextColumn::make('employee_id')
                     ->label('ID')
                     ->searchable()
                     ->sortable(),
-                    
-                Tables\Columns\TextColumn::make('full_name') 
+
+                Tables\Columns\TextColumn::make('full_name')
                     ->label('Nama Karyawan')
-                    ->getStateUsing(fn (Employee $record) => $record->full_name) 
+                    ->getStateUsing(fn(Employee $record) => $record->full_name)
                     ->searchable(['first_name', 'last_name'])
                     ->sortable(),
-                
+
                 // Menggunakan relasi untuk menampilkan Jabatan dan Departemen
                 Tables\Columns\TextColumn::make('jobPosition.name')
                     ->label('Jabatan')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('jobPosition.department.name')
                     ->label('Departemen')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('hire_date')
                     ->label('Tgl. Masuk')
                     ->date('d/m/Y')
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Active' => 'success',
                         'On Leave' => 'warning',
                         'Terminated' => 'danger',
@@ -181,7 +193,7 @@ class EmployeeResource extends Resource
                 Tables\Filters\SelectFilter::make('job_position_id')
                     ->relationship('jobPosition', 'name')
                     ->label('Filter Berdasarkan Jabatan'),
-                
+
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status')
                     ->options([

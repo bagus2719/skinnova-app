@@ -26,6 +26,16 @@ class VendorResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Informasi Dasar Vendor')
                     ->schema([
+                        Forms\Components\FileUpload::make('profile_image')
+                            ->label('Foto Vendor')
+                            ->image()
+                            ->directory('vendor-photos')
+                            ->visibility('public')
+                            ->imageResizeTargetWidth('200')
+                            ->imageResizeTargetHeight('200')
+                            ->imageCropAspectRatio('1:1')
+                            ->columnSpan(1),
+                            
                         Forms\Components\TextInput::make('code')
                             ->label('Kode Vendor')
                             ->required()
@@ -84,6 +94,9 @@ class VendorResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('profile_image') // <--- BARU: Tampilkan foto profil
+                    ->label('Foto'),
+
                 Tables\Columns\TextColumn::make('code')
                     ->label('Kode')
                     ->searchable()

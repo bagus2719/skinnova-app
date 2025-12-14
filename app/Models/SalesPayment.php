@@ -16,9 +16,19 @@ class SalesPayment extends Model
         'payment_date' => 'date',
     ];
 
-    // Pembayaran milik satu Sales Invoice
     public function salesInvoice(): BelongsTo
     {
         return $this->belongsTo(SalesInvoice::class);
+    }
+    
+    protected static function booted()
+    {
+        static::saved(function (SalesPayment $payment) {
+            $invoice = $payment->salesInvoice;
+
+            if ($invoice) {
+                $invoice->checkPaymentStatus();
+            }
+        });
     }
 }

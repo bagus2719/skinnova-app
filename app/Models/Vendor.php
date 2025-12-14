@@ -18,6 +18,7 @@ class Vendor extends Model
         'address',
         'tax_id',
         'is_active',
+        'profile_image',
     ];
 
     protected $casts = [

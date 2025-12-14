@@ -21,6 +21,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\Number;
 use App\Filament\Resources\SalesInvoiceResource\RelationManagers\SalesPaymentsRelationManager;
 
+
 class SalesInvoiceResource extends Resource
 {
     protected static ?string $model = SalesInvoice::class;
@@ -265,18 +266,14 @@ class SalesInvoiceResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('printInvoice')
+                    ->label('Cetak Invoice')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('primary')
+                    ->url(fn (SalesInvoice $record): string => route('filament.admin.sales-invoices.pdf', $record))
+                    ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('markAsPaid')
-                    ->label('Tandai Lunas')
-                    ->icon('heroicon-o-credit-card')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->action(function (SalesInvoice $record) {
-                        $record->status = 'Paid';
-                        $record->save();
-                        Notification::make()->title('Faktur Lunas')->body("Faktur {$record->reference_no} ditandai sebagai Lunas.")->success()->send();
-                    })
-                    ->visible(fn(SalesInvoice $record) => $record->status !== 'Paid' && $record->status !== 'Cancelled'),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -43,4 +43,23 @@ class SalesInvoice extends Model
     {
         return $this->hasMany(SalesPayment::class);
     }
+    
+    public function checkPaymentStatus(): void
+    {
+        $totalPaid = $this->salesPayments()->sum('amount');
+        $grandTotal = $this->grand_total;
+        $currentStatus = $this->status;
+
+        if ($totalPaid >= $grandTotal) {
+            if ($currentStatus !== 'Paid') {
+                $this->status = 'Paid';
+                $this->save();
+            }
+        } elseif ($totalPaid > 0) {
+            if ($currentStatus !== 'Paid' && $currentStatus !== 'Cancelled' && $currentStatus !== 'Sent') {
+                $this->status = 'Sent';
+                $this->save();
+            }
+        }
+    }
 }
