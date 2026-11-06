@@ -45,6 +45,21 @@ class ManufacturingOrderResource extends Resource
                             ->readOnly()
                             ->dehydrated(true),
 
+                        Forms\Components\TextInput::make('batch_number')
+                            ->label('No. Batch Produksi (BPOM)')
+                            ->required()
+                            ->maxLength(255)
+                            ->default(function (string $operation) {
+                                if ($operation === 'create') {
+                                    $lastOrder = ManufacturingOrder::query()->orderByDesc('id')->first();
+                                    $nextId = $lastOrder ? $lastOrder->id + 1 : 1;
+                                    return 'BATCH-' . date('Ym') . '-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                                }
+                                return null;
+                            })
+                            ->helperText('Identitas batch untuk pelacakan BPOM & tanggal kadaluarsa')
+                            ->dehydrated(true),
+
                         Forms\Components\Select::make('product_id')
                             ->label('Produk yang Diproduksi')
                             ->relationship('product', 'name')
@@ -100,6 +115,12 @@ class ManufacturingOrderResource extends Resource
                             ->nullable()
                             ->readOnly(),
 
+                        Forms\Components\DatePicker::make('expired_date')
+                            ->label('Tgl Kadaluarsa (ED)')
+                            ->nullable()
+                            ->readOnly()
+                            ->helperText('Otomatis dihitung dari masa simpan produk saat status Done'),
+
                         Forms\Components\Textarea::make('notes')
                             ->label('Catatan')
                             ->columnSpanFull(),
@@ -144,6 +165,11 @@ class ManufacturingOrderResource extends Resource
                     ->searchable()
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('batch_number')
+                    ->label('No. Batch')
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('product.name')
                     ->label('Produk Jadi')
                     ->searchable()
@@ -177,6 +203,12 @@ class ManufacturingOrderResource extends Resource
                     ->label('Selesai')
                     ->dateTime('d/m/Y H:i')
                     ->placeholder('Belum Selesai')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('expired_date')
+                    ->label('Tgl Expired')
+                    ->date('d/m/Y')
+                    ->placeholder('-')
                     ->sortable(),
             ])
             ->filters([

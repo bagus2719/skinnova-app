@@ -18,6 +18,7 @@ use Filament\Forms\Get;
 use Illuminate\Support\Facades\DB;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Number;
+use App\Models\StockMovement;
 
 class GoodReceiptResource extends Resource
 {
@@ -228,8 +229,21 @@ class GoodReceiptResource extends Resource
 
                                     if ($poItem && $receivedQty > 0) {
                                         $material = $poItem->material;
+                                        $stockBefore = (float) $material->current_stock;
                                         $material->current_stock += $receivedQty;
                                         $material->save();
+
+                                        StockMovement::record([
+                                            'type' => 'IN',
+                                            'item_type' => 'Material',
+                                            'material_id' => $material->id,
+                                            'quantity' => $receivedQty,
+                                            'stock_before' => $stockBefore,
+                                            'stock_after' => (float) $material->current_stock,
+                                            'reference_type' => 'Good Receipt (Penerimaan PO)',
+                                            'reference_no' => $record->reference_no,
+                                            'notes' => "Penerimaan dari PO {$po->reference_no} (Vendor: {$po->vendor?->name})",
+                                        ]);
 
                                         $poItem->received_quantity += $receivedQty;
                                         $poItem->save();

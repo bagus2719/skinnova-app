@@ -93,6 +93,23 @@ class ProductResource extends Resource
                             ->columnSpanFull()
                             ->nullable(),
                     ]),
+
+                Forms\Components\Section::make('Regulasi & Masa Simpan (BPOM)')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('bpom_number')
+                            ->label('Nomor Registrasi BPOM')
+                            ->placeholder('Contoh: NA18240101234')
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('shelf_life_months')
+                            ->label('Masa Simpan / Shelf Life')
+                            ->numeric()
+                            ->default(24)
+                            ->suffix('Bulan')
+                            ->helperText('Otomatis menghitung tanggal expired produk saat produksi selesai.')
+                            ->required(),
+                    ]),
             ]);
     }
 
@@ -108,6 +125,11 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('sku')
                     ->label('SKU')
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('bpom_number')
+                    ->label('No. BPOM')
+                    ->searchable()
+                    ->placeholder('-'),
 
                 Tables\Columns\TextColumn::make('unit')
                     ->label('Unit Jual')

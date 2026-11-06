@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\StockMovement;
 
 class InventoryAdjustment extends Model
 {
@@ -32,6 +33,7 @@ class InventoryAdjustment extends Model
     {
         static::created(function (InventoryAdjustment $adjustment) {
             $material = $adjustment->material;
+            $stockBefore = (float) $material->current_stock;
 
             if ($adjustment->type === 'IN') {
                 $material->current_stock += $adjustment->quantity;
@@ -40,6 +42,18 @@ class InventoryAdjustment extends Model
             }
 
             $material->save();
+
+            StockMovement::record([
+                'type' => $adjustment->type,
+                'item_type' => 'Material',
+                'material_id' => $material->id,
+                'quantity' => $adjustment->quantity,
+                'stock_before' => $stockBefore,
+                'stock_after' => (float) $material->current_stock,
+                'reference_type' => 'Penyesuaian Stok (Inventory Adjustment)',
+                'reference_no' => $adjustment->reference_no,
+                'notes' => $adjustment->reason ?? 'Penyesuaian stok manual',
+            ]);
         });
 
         static::deleted(function (InventoryAdjustment $adjustment) {

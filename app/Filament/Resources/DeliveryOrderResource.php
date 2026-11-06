@@ -19,6 +19,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Set;
 use Filament\Forms\Get;
+use App\Models\StockMovement;
 
 class DeliveryOrderResource extends Resource
 {
@@ -120,6 +121,12 @@ class DeliveryOrderResource extends Resource
                                     ->dehydrated(true)
                                     ->required()
                                     ->columnSpan(4),
+
+                                Forms\Components\TextInput::make('batch_number')
+                                    ->label('No. Batch')
+                                    ->placeholder('Contoh: BATCH-...')
+                                    ->maxLength(255)
+                                    ->columnSpan(3),
 
                                 Forms\Components\TextInput::make('sales_order_quantity')
                                     ->label('Qty SO')
@@ -224,7 +231,21 @@ class DeliveryOrderResource extends Resource
                                 $deliveredQty = $doItem->delivered_quantity;
                                 $product = $doItem->product;
                                 if ($product) {
+                                    $stockBefore = (float) $product->current_stock;
                                     $product->decrement('current_stock', $deliveredQty);
+
+                                    StockMovement::record([
+                                        'type' => 'OUT',
+                                        'item_type' => 'Product',
+                                        'product_id' => $product->id,
+                                        'batch_number' => $doItem->batch_number,
+                                        'quantity' => $deliveredQty,
+                                        'stock_before' => $stockBefore,
+                                        'stock_after' => (float) $product->current_stock,
+                                        'reference_type' => 'Delivery Order (Pengiriman)',
+                                        'reference_no' => $record->reference_no,
+                                        'notes' => "Pengiriman ke pelanggan: {$so->customer?->name} (SO: {$so->reference_no})",
+                                    ]);
                                 }
                                 $soItem = $so->items->where('product_id', $product->id)->first();
                                 if ($soItem) {

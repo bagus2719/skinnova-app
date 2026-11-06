@@ -18,6 +18,8 @@ class Product extends Model
         'description',
         'current_stock',
         'minimum_stock',
+        'bpom_number',
+        'shelf_life_months',
     ];
 
     protected $casts = [
@@ -25,6 +27,7 @@ class Product extends Model
         'is_active' => 'boolean',
         'current_stock' => 'float',
         'minimum_stock' => 'float',
+        'shelf_life_months' => 'integer',
     ];
 
     public function boms(): HasMany

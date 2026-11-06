@@ -13,6 +13,7 @@ class DeliveryOrderItem extends Model
     protected $fillable = [
         'delivery_order_id',
         'product_id',
+        'batch_number',
         'sales_order_quantity',
         'delivered_quantity',
     ];
