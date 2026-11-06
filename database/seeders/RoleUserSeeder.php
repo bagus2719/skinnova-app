@@ -80,3 +80,4 @@ class RoleUserSeeder extends Seeder
         }
     }
 }
+
