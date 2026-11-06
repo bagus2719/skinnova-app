@@ -17,12 +17,14 @@ class Product extends Model
         'is_active',
         'description',
         'current_stock',
+        'minimum_stock',
     ];
 
     protected $casts = [
         'selling_price' => 'float',
         'is_active' => 'boolean',
         'current_stock' => 'float',
+        'minimum_stock' => 'float',
     ];
 
     public function boms(): HasMany

@@ -20,6 +20,7 @@ use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Number;
 use App\Filament\Resources\SalesInvoiceResource\RelationManagers\SalesPaymentsRelationManager;
+use App\Services\CsvExporter;
 
 
 class SalesInvoiceResource extends Resource
@@ -265,6 +266,58 @@ class SalesInvoiceResource extends Resource
                         'Cancelled' => 'Dibatalkan',
                     ]),
             ])
+            ->headerActions([
+                Tables\Actions\Action::make('exportCsv')
+                    ->label('Export CSV / Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function () {
+                        $invoices = SalesInvoice::with(['salesOrder.customer', 'salesPayments'])
+                            ->orderByDesc('invoice_date')
+                            ->get();
+
+                        $headers = [
+                            'No. Invoice',
+                            'No. Sales Order',
+                            'Pelanggan',
+                            'Tgl Faktur',
+                            'Tgl Jatuh Tempo',
+                            'Subtotal (Rp)',
+                            'PPN (Rp)',
+                            'Total Tagihan (Rp)',
+                            'Total Dibayar (Rp)',
+                            'Sisa Tagihan (Rp)',
+                            'Status',
+                            'Catatan',
+                        ];
+
+                        $rows = $invoices->map(function ($inv) {
+                            $totalPaid = (float) $inv->salesPayments->sum('amount');
+                            $remaining = max(0, (float) $inv->grand_total - $totalPaid);
+
+                            return [
+                                $inv->reference_no,
+                                $inv->salesOrder?->reference_no ?? '-',
+                                $inv->salesOrder?->customer?->name ?? '-',
+                                $inv->invoice_date?->format('d/m/Y') ?? '-',
+                                $inv->due_date?->format('d/m/Y') ?? '-',
+                                $inv->total_amount,
+                                $inv->tax_amount,
+                                $inv->grand_total,
+                                $totalPaid,
+                                $remaining,
+                                $inv->status,
+                                $inv->notes ?? '-',
+                            ];
+                        });
+
+                        return CsvExporter::download(
+                            'sales-invoices-' . date('Y-m-d') . '.csv',
+                            $headers,
+                            $rows
+                        );
+                    }),
+            ])
             ->actions([
                 Tables\Actions\Action::make('printInvoice')
                     ->label('Cetak Invoice')
@@ -277,6 +330,54 @@ class SalesInvoiceResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('exportSelected')
+                        ->label('Export Pilihan ke CSV')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $records->loadMissing(['salesOrder.customer', 'salesPayments']);
+
+                            $headers = [
+                                'No. Invoice',
+                                'No. Sales Order',
+                                'Pelanggan',
+                                'Tgl Faktur',
+                                'Tgl Jatuh Tempo',
+                                'Subtotal (Rp)',
+                                'PPN (Rp)',
+                                'Total Tagihan (Rp)',
+                                'Total Dibayar (Rp)',
+                                'Sisa Tagihan (Rp)',
+                                'Status',
+                                'Catatan',
+                            ];
+
+                            $rows = $records->map(function ($inv) {
+                                $totalPaid = (float) $inv->salesPayments->sum('amount');
+                                $remaining = max(0, (float) $inv->grand_total - $totalPaid);
+
+                                return [
+                                    $inv->reference_no,
+                                    $inv->salesOrder?->reference_no ?? '-',
+                                    $inv->salesOrder?->customer?->name ?? '-',
+                                    $inv->invoice_date?->format('d/m/Y') ?? '-',
+                                    $inv->due_date?->format('d/m/Y') ?? '-',
+                                    $inv->total_amount,
+                                    $inv->tax_amount,
+                                    $inv->grand_total,
+                                    $totalPaid,
+                                    $remaining,
+                                    $inv->status,
+                                    $inv->notes ?? '-',
+                                ];
+                            });
+
+                            return CsvExporter::download(
+                                'sales-invoices-selected-' . date('Y-m-d') . '.csv',
+                                $headers,
+                                $rows
+                            );
+                        }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

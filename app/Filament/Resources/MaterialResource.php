@@ -66,7 +66,7 @@ class MaterialResource extends Resource
                     ]),
 
                 Forms\Components\Section::make('Stok & Biaya')
-                    ->columns(2)
+                    ->columns(3)
                     ->schema([
                         Forms\Components\TextInput::make('current_stock')
                             ->label('Stok Saat Ini')
@@ -74,6 +74,14 @@ class MaterialResource extends Resource
                             ->step(0.01)
                             ->default(0)
                             ->disabled(),
+
+                        Forms\Components\TextInput::make('minimum_stock')
+                            ->label('Stok Minimum (Alert)')
+                            ->numeric()
+                            ->step(0.01)
+                            ->default(0)
+                            ->helperText('Batas minimum untuk peringatan stok menipis')
+                            ->required(),
 
                         Forms\Components\TextInput::make('std_cost')
                             ->label('Biaya Standar per Unit (Rp)')
@@ -107,11 +115,16 @@ class MaterialResource extends Resource
                     ->numeric(decimalPlaces: 2)
                     ->sortable()
                     ->badge()
-                    ->color(fn($state): string => match (true) {
+                    ->color(fn(Material $record, $state): string => match (true) {
                         $state <= 0 => 'danger',
-                        $state > 0 => 'success',
-                        default => 'gray',
+                        $state <= ($record->minimum_stock ?? 0) => 'warning',
+                        default => 'success',
                     }),
+
+                Tables\Columns\TextColumn::make('minimum_stock')
+                    ->label('Stok Min')
+                    ->numeric(decimalPlaces: 2)
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('std_cost')
                     ->label('Biaya Standar')

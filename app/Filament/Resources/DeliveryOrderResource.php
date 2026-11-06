@@ -54,8 +54,7 @@ class DeliveryOrderResource extends Resource
                         Forms\Components\Select::make('sales_order_id')
                             ->label('Sales Order (SO)')
                             ->relationship('salesOrder', 'reference_no', fn (Builder $query) => 
-                                $query->where('status', 'Confirmed') // Hanya SO yang Dikonfirmasi
-                                      // PERBAIKAN: Mengganti 'sol.delivered_quantity' menjadi 'sol.shipped_quantity'
+                                $query->where('status', 'Confirmed')
                                       ->whereColumn('sales_orders.total_amount', '>', DB::raw('(SELECT COALESCE(SUM(sol.shipped_quantity), 0) FROM sales_order_items sol WHERE sol.sales_order_id = sales_orders.id)'))
                             )
                             ->getOptionLabelFromRecordUsing(fn (SalesOrder $record) => "{$record->reference_no} ({$record->customer->name})")

@@ -16,6 +16,7 @@ use App\Models\Product;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use App\Models\Customer;
+use App\Services\CsvExporter;
 
 class SalesOrderResource extends Resource
 {
@@ -263,22 +264,89 @@ class SalesOrderResource extends Resource
                         'Cancelled' => 'Dibatalkan',
                     ]),
             ])
+            ->headerActions([
+                Tables\Actions\Action::make('exportCsv')
+                    ->label('Export CSV / Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function () {
+                        $orders = SalesOrder::with(['customer', 'items.product'])
+                            ->orderByDesc('order_date')
+                            ->get();
+
+                        $headers = [
+                            'No. Sales Order',
+                            'Pelanggan',
+                            'Tgl Order',
+                            'Target Kirim',
+                            'Total Nilai SO (Rp)',
+                            'Status',
+                            'Alamat Pengiriman',
+                            'Catatan',
+                        ];
+
+                        $rows = $orders->map(function ($order) {
+                            return [
+                                $order->reference_no,
+                                $order->customer?->name ?? '-',
+                                $order->order_date?->format('d/m/Y') ?? '-',
+                                $order->expected_shipment_date?->format('d/m/Y') ?? '-',
+                                $order->total_amount,
+                                $order->status,
+                                $order->shipping_address ?? '-',
+                                $order->notes ?? '-',
+                            ];
+                        });
+
+                        return CsvExporter::download(
+                            'sales-orders-' . date('Y-m-d') . '.csv',
+                            $headers,
+                            $rows
+                        );
+                    }),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('exportSelected')
+                        ->label('Export Pilihan ke CSV')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $records->loadMissing(['customer']);
+
+                            $headers = [
+                                'No. Sales Order',
+                                'Pelanggan',
+                                'Tgl Order',
+                                'Target Kirim',
+                                'Total Nilai SO (Rp)',
+                                'Status',
+                                'Alamat Pengiriman',
+                                'Catatan',
+                            ];
+
+                            $rows = $records->map(function ($order) {
+                                return [
+                                    $order->reference_no,
+                                    $order->customer?->name ?? '-',
+                                    $order->order_date?->format('d/m/Y') ?? '-',
+                                    $order->expected_shipment_date?->format('d/m/Y') ?? '-',
+                                    $order->total_amount,
+                                    $order->status,
+                                    $order->shipping_address ?? '-',
+                                    $order->notes ?? '-',
+                                ];
+                            });
+
+                            return CsvExporter::download(
+                                'sales-orders-selected-' . date('Y-m-d') . '.csv',
+                                $headers,
+                                $rows
+                            );
+                        }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Number;
 use App\Filament\Resources\ProductResource\RelationManagers\BomsRelationManager;
+use App\Services\CsvExporter;
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
@@ -68,6 +69,14 @@ class ProductResource extends Resource
                             ->default(0)
                             ->required(),
 
+                        Forms\Components\TextInput::make('minimum_stock')
+                            ->label('Stok Minimum (Alert)')
+                            ->numeric()
+                            ->step(0.01)
+                            ->default(0)
+                            ->helperText('Batas minimum untuk peringatan stok menipis')
+                            ->required(),
+
                         Forms\Components\TextInput::make('selling_price')
                             ->label('Harga Jual (Rp)')
                             ->numeric()
@@ -109,11 +118,16 @@ class ProductResource extends Resource
                     ->numeric(decimalPlaces: 2)
                     ->sortable()
                     ->badge()
-                    ->color(fn ($state): string => match (true) {
+                    ->color(fn (Product $record, $state): string => match (true) {
                         $state <= 0 => 'danger',
-                        $state > 0 => 'success',
-                        default => 'gray',
+                        $state <= ($record->minimum_stock ?? 0) => 'warning',
+                        default => 'success',
                     }),
+
+                Tables\Columns\TextColumn::make('minimum_stock')
+                    ->label('Stok Min')
+                    ->numeric(decimalPlaces: 2)
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('selling_price')
                     ->label('Harga Jual')
@@ -127,12 +141,86 @@ class ProductResource extends Resource
             ->filters([
                 //
             ])
+            ->headerActions([
+                Tables\Actions\Action::make('exportCsv')
+                    ->label('Export CSV / Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function () {
+                        $products = Product::orderBy('name')->get();
+
+                        $headers = [
+                            'Nama Produk',
+                            'SKU',
+                            'Unit',
+                            'Stok Saat Ini',
+                            'Stok Minimum',
+                            'Harga Jual (Rp)',
+                            'Status Aktif',
+                            'Deskripsi',
+                        ];
+
+                        $rows = $products->map(function ($product) {
+                            return [
+                                $product->name,
+                                $product->sku,
+                                $product->unit,
+                                $product->current_stock,
+                                $product->minimum_stock ?? 0,
+                                $product->selling_price,
+                                $product->is_active ? 'Aktif' : 'Non-Aktif',
+                                $product->description ?? '-',
+                            ];
+                        });
+
+                        return CsvExporter::download(
+                            'products-inventory-' . date('Y-m-d') . '.csv',
+                            $headers,
+                            $rows
+                        );
+                    }),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('exportSelected')
+                        ->label('Export Pilihan ke CSV')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $headers = [
+                                'Nama Produk',
+                                'SKU',
+                                'Unit',
+                                'Stok Saat Ini',
+                                'Stok Minimum',
+                                'Harga Jual (Rp)',
+                                'Status Aktif',
+                                'Deskripsi',
+                            ];
+
+                            $rows = $records->map(function ($product) {
+                                return [
+                                    $product->name,
+                                    $product->sku,
+                                    $product->unit,
+                                    $product->current_stock,
+                                    $product->minimum_stock ?? 0,
+                                    $product->selling_price,
+                                    $product->is_active ? 'Aktif' : 'Non-Aktif',
+                                    $product->description ?? '-',
+                                ];
+                            });
+
+                            return CsvExporter::download(
+                                'products-selected-' . date('Y-m-d') . '.csv',
+                                $headers,
+                                $rows
+                            );
+                        }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

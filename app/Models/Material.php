@@ -14,10 +14,12 @@ class Material extends Model
         'code',
         'unit',
         'current_stock',
+        'minimum_stock',
         'std_cost',
     ];
     protected $casts = [
         'current_stock' => 'float',
+        'minimum_stock' => 'float',
         'std_cost' => 'float',
     ];
     
