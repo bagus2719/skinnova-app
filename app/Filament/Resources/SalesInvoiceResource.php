@@ -32,6 +32,11 @@ class SalesInvoiceResource extends Resource
     protected static ?string $modelLabel = 'Sales Invoice (Faktur)';
     protected static ?string $pluralModelLabel = 'Sales Invoice';
     const TAX_RATE = 0.11;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['sales', 'finance']) ?? true;
+    }
     public static function form(Form $form): Form
     {
         return $form

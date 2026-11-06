@@ -22,6 +22,11 @@ class JobPositionResource extends Resource
     protected static ?string $modelLabel = 'Job Position';
     protected static ?string $pluralModelLabel = 'Job Position';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['hr']) ?? true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

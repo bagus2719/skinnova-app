@@ -50,3 +50,4 @@ class StockMovement extends Model
         return self::create($data);
     }
 }
+

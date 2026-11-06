@@ -28,6 +28,11 @@ class SalesQuotationResource extends Resource
     protected static ?string $modelLabel = 'Sales Quotation (SQ)';
     protected static ?string $pluralModelLabel = 'Sales Quotations';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['sales']) ?? true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

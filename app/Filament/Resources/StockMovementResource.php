@@ -23,6 +23,11 @@ class StockMovementResource extends Resource
     protected static ?string $pluralModelLabel = 'Kartu Stok / Mutasi Stok';
     protected static ?int $navigationSort = 10;
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['inventory', 'production', 'finance']) ?? true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -243,3 +248,4 @@ class StockMovementResource extends Resource
         ];
     }
 }
+

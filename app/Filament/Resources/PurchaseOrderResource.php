@@ -26,6 +26,11 @@ class PurchaseOrderResource extends Resource
     protected static ?string $modelLabel = 'Purchase Orders (PO)';
     protected static ?string $pluralModelLabel = 'Purchase Orders';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['purchasing', 'finance']) ?? true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

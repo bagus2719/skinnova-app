@@ -24,6 +24,11 @@ class EmployeeResource extends Resource
     protected static ?string $modelLabel = 'Employee';
     protected static ?string $pluralModelLabel = 'Employee';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['hr']) ?? true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

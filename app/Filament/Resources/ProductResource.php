@@ -22,6 +22,11 @@ class ProductResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
     protected static ?string $navigationGroup = 'Manufacturing';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['production', 'inventory', 'sales']) ?? true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

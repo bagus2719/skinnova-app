@@ -20,6 +20,11 @@ class VendorResource extends Resource
     protected static ?string $navigationGroup = 'Purchasing';
     protected static ?string $modelLabel = 'Vendor';
     protected static ?string $pluralModelLabel = 'Vendor ';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['purchasing', 'finance']) ?? true;
+    }
     public static function form(Form $form): Form
     {
         return $form

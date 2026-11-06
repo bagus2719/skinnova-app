@@ -14,3 +14,4 @@ class ListStockMovements extends ListRecords
         return [];
     }
 }
+

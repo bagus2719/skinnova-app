@@ -30,6 +30,11 @@ class DeliveryOrderResource extends Resource
     protected static ?string $modelLabel = 'Delivery Order (DO)';
     protected static ?string $pluralModelLabel = 'Delivery Order';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['sales', 'inventory']) ?? true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

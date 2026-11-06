@@ -23,6 +23,11 @@ class ManufacturingOrderResource extends Resource
     protected static ?string $modelLabel = 'Manufacturing Order';
     protected static ?string $pluralModelLabel = 'Manufacturing Order';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['production']) ?? true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

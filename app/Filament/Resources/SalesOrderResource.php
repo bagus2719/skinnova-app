@@ -26,6 +26,11 @@ class SalesOrderResource extends Resource
     protected static ?string $modelLabel = 'Sales Order (SO)';
     protected static ?string $pluralModelLabel = 'Sales Orders';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['sales', 'inventory']) ?? true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

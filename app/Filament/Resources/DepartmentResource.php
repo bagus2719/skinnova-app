@@ -21,6 +21,11 @@ class DepartmentResource extends Resource
     protected static ?string $navigationGroup = 'Employee';
     protected static ?string $modelLabel = 'Departemen';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['hr']) ?? true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

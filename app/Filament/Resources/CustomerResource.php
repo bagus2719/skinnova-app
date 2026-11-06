@@ -20,6 +20,11 @@ class CustomerResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
     protected static ?string $navigationGroup = 'Sales';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['sales', 'finance']) ?? true;
+    }
     public static function form(Form $form): Form
     {
         return $form

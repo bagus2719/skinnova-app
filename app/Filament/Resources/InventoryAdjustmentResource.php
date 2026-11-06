@@ -22,7 +22,12 @@ class InventoryAdjustmentResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-arrow-path';
     protected static ?string $label = 'Penyesuaian Stok Material';
     
-    protected static ?string $navigationGroup = 'Manufacturing';    
+    protected static ?string $navigationGroup = 'Manufacturing';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['inventory', 'production']) ?? true;
+    }    
 
     public static function form(Form $form): Form
     {

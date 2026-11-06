@@ -28,6 +28,11 @@ class GoodReceiptResource extends Resource
     protected static ?string $navigationGroup = 'Purchasing';
     protected static ?string $modelLabel = 'Penerimaan Barang';
     protected static ?string $pluralModelLabel = 'Penerimaan Barang';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['purchasing', 'inventory']) ?? true;
+    }
     public static function form(Form $form): Form
     {
         return $form

@@ -25,6 +25,11 @@ class MaterialResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Bahan Baku';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['production', 'inventory', 'purchasing']) ?? true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

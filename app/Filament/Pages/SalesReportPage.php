@@ -24,6 +24,11 @@ class SalesReportPage extends Page implements HasForms
     protected static ?int $navigationSort = 1;
     protected static string $view = 'filament.pages.sales-report';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasAnyRole(['sales', 'finance']) ?? true;
+    }
+
     public ?array $data = [];
 
     public function mount(): void
